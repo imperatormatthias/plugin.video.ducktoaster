@@ -1,9 +1,11 @@
 #!/usr/bin/env Python
 import sys
+import ast
 import xbmc
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
+import urllib2
 
 addon_handle = int(sys.argv[1])
 
@@ -12,8 +14,11 @@ addon = xbmcaddon.Addon()
 home = xbmc.translatePath(addon.getAddonInfo('path'))
 iconPath = home + '\\' + 'icon.png'
 
-url = 'https://video-cdn.streamup.com/app/gakinotsukai/chunklist.m3u8'
-li = xbmcgui.ListItem('Gaki no Tsukai', iconImage=iconPath, thumbnailImage=iconPath)
-xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=li)
+response = urllib2.urlopen('https://lancer.streamup.com/api/channels/gakinotsukai/playlists')
+playlist = ast.literal_eval(response.read())
 
-xbmcplugin.endOfDirectory(addon_handle)
+hls = playlist['hls']
+
+li = xbmcgui.ListItem('Gaki no Tsukai', iconImage=iconPath, thumbnailImage=iconPath)
+
+xbmc.Player().play(hls,li)
